@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Models\Cliente;
+use App\Models\Estabelecimento;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -16,36 +17,64 @@ class AuthController extends Controller
             'senhaLogin' => 'required|string|min:8',
         ]);
 
-        $emailVerificado = Cliente::where('email', $validatedData['emailLogin'])->where('email_verificado', 1)->first();
-        $perfilAtivo = Cliente::where('email', $validatedData['emailLogin'])->where('perfil_ativo', 1)->first();
+        $email = $validatedData['emailLogin'];
+        $senha = $validatedData['senhaLogin'];
 
-        if (Auth::guard('cliente')->attempt(['email' => $validatedData['emailLogin'], 'password' => $validatedData['senhaLogin']])) {
-            if ($perfilAtivo) {
-                if ($emailVerificado) {
-                    $cliente = Auth::guard('cliente')->user();
+        $ativoVerificado = function ($model, $email) {
+            return $model::where('email', $email)
+            ->where('email_verificado', 1)
+            ->where('perfil_ativo', 1)
+            ->first();
+        };
 
-                    return response()->json([
-                        'success' => true,
-                        'message' => 'Login realizado com sucesso!',
-                        'cliente' => $cliente,
-                    ]);
-                } else {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Email não verificado!',
-                    ], 403);
-                }
-            } else {
+        $cliente = $ativoVerificado(Cliente::class, $email);
+        if ($cliente && Auth::guard('cliente')->attempt(['email' => $email, 'password' => $senha]))
+        {
+            return response()->json([
+                'success' => true,
+                'message' => 'Login do cliente realizado com sucesso!',
+                'cliente' => $cliente,
+            ]);
+        }
+
+        $estabelecimento = $ativoVerificado(Estabelecimento::class, $email);
+        if (Auth::guard('estabelecimento')->attempt(['email' => $validatedData['emailLogin'], 'password' => $validatedData['senhaLogin']]))
+        {
+            if ($estabelecimento && Auth::guard('estabelecimento')->attempt(['email' => $email, 'password' => $senha]))
+            {
                 return response()->json([
-                    'success' => false,
-                    'message' => 'Seu perfil está desativado',
-                ], 403);
+                    'success' => true,
+                    'message' => 'Login do estabelecimento realizado com sucesso!',
+                    'cliente' => $estabelecimento,
+                ]);
             }
-        } else {
+        }
+
+        // Verifica motivo do erro
+        if (!$cliente && !$estabelecimento) {
             return response()->json([
                 'success' => false,
-                'message' => 'Email ou senha inválidos',
-            ], 401);
+                'message' => 'Email não encontrado ou não verificado.',
+            ], 403);
         }
+
+        if (($cliente && !$cliente->email_verificado) || ($estabelecimento && !$estabelecimento->email_verificado)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Email não verificado!',
+            ], 403);
+        }
+
+        if (($cliente && !$cliente->perfil_ativo) || ($estabelecimento && !$estabelecimento->perfil_ativo)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Seu perfil está desativado.',
+            ], 403);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Email ou senha inválidos.',
+        ], 401);
     }
 }
