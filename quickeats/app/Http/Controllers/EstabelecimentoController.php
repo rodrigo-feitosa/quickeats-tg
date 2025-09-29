@@ -16,9 +16,9 @@ use App\Rules\validaCelular;
 use App\Rules\validaCNPJ;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Mail;
-use App\Mail\ResetSenhaEmail; 
-use App\Models\ResetSenha; 
-use App\Models\LogsToken;   
+use App\Mail\ResetSenhaEmail;
+use App\Models\ResetSenha;
+use App\Models\LogsToken;
 use Illuminate\Support\Facades\Hash;
 use Carbon\Carbon;
 use Stripe\Stripe;
@@ -29,7 +29,6 @@ class EstabelecimentoController extends Controller
     public function cadastrarEstabelecimento(Request $request)
     {
         try {
-            // Valida apenas os campos obrigatórios para o cadastro inicial
             $validatedData = $request->validate([
                 'nomeFantasiaSignup' => 'required|string|max:55',
                 'cnpjSignup' => ['required', new validaCNPJ, 'unique:estabelecimentos,cnpj'],
@@ -50,14 +49,12 @@ class EstabelecimentoController extends Controller
                 'numeroSignup.regex' => 'O número deve conter apenas letras e números, sem caracteres especiais ou números negativos.',
             ]);
 
-            // Chama o método para criar o estabelecimento no model
             $estabelecimento = Estabelecimento::cadastrarEstabelecimento($validatedData);
 
             if (!$estabelecimento) {
                 return redirect()->back()->with('error', 'Erro ao cadastrar estabelecimento. Tente novamente.');
             }
 
-            // Gerar o token de confirmação
             $token = Str::random(60);
 
             // Inserir o token no banco de dados
@@ -73,7 +70,6 @@ class EstabelecimentoController extends Controller
                 return redirect()->back()->with('error', 'Erro ao cadastrar estabelecimento. Tente novamente.');
             }
 
-            // Envio do e-mail de confirmação
             try {
                 Mail::to($estabelecimento->email)->send(new ConfirmaEmail($token, $estabelecimento->email, 'estabelecimento'));
             } catch (\Exception $e) {
@@ -123,7 +119,7 @@ class EstabelecimentoController extends Controller
         $estabelecimento = Auth::guard('estabelecimento')->user();
 
         // Pegando o ID do estabelecimento logado
-        $idEstabelecimento = $estabelecimento->id_estab; 
+        $idEstabelecimento = $estabelecimento->id_estab;
 
         // Executando o procedure e obtendo os pedidos
         $pedidos = DB::select("CALL exibir_pedidos_estabelecimento(?)", [$idEstabelecimento]);
@@ -141,7 +137,7 @@ class EstabelecimentoController extends Controller
                             ->where('qtd_estoque', '<', 10)
                             ->count();
 
-        $exibirModal = empty($estabelecimento->razao_social) 
+        $exibirModal = empty($estabelecimento->razao_social)
                         || empty($estabelecimento->cpf_titular)
                         || empty($estabelecimento->rg_titular)
                         || empty($estabelecimento->cnae);
@@ -219,7 +215,7 @@ class EstabelecimentoController extends Controller
             // Atualizar o status do pedido no banco
             DB::update("UPDATE pedidos SET status_entrega = ? WHERE id_pedido = ?", [$request->novo_status, $id]);
 
-            return redirect()->back()->with('success', 'Status atualizado com sucesso.' . 
+            return redirect()->back()->with('success', 'Status atualizado com sucesso.' .
                 ($request->novo_status == "6" ? ' Reembolso realizado.' : '')
             );
         } catch (\Exception $e) {
@@ -228,12 +224,12 @@ class EstabelecimentoController extends Controller
     }
 
     // Método para ir para a página de adm
-    public function exibirAdmRestaurante() 
+    public function exibirAdmRestaurante()
     {
         return view('adm_restaurante');
     }
 
-    public function exibirInfoRestaurante() 
+    public function exibirInfoRestaurante()
     {
         $idRes = Auth::guard('estabelecimento')->id();
 
@@ -243,7 +239,7 @@ class EstabelecimentoController extends Controller
         return view('info_restaurante', compact('cadastro'));
     }
 
-    public function alteraCadastro(Request $request) 
+    public function alteraCadastro(Request $request)
     {
         $idRes = Auth::guard('estabelecimento')->id();
 
@@ -263,14 +259,14 @@ class EstabelecimentoController extends Controller
         return redirect()->back()->with('success', 'Usuário atualizado com sucesso!');
     }
 
-    public function exibirProdutosRestaurante() 
+    public function exibirProdutosRestaurante()
     {
         $idRes = Auth::guard('estabelecimento')->id();
 
         $produtos = DB::table('produtos')
         ->join('categorias_produtos', 'produtos.id_categoria', '=', 'categorias_produtos.id_categoria')
         ->where('produtos.id_estab', $idRes)
-        ->select('produtos.*', 'categorias_produtos.descricao as categoria_descricao') 
+        ->select('produtos.*', 'categorias_produtos.descricao as categoria_descricao')
         ->get();
 
         // Obter as categorias dos produtos
@@ -295,7 +291,7 @@ class EstabelecimentoController extends Controller
         if ($request->hasFile('imagem_produto')) {
             // Gera um nome único para a imagem
             $imagemNome = time() . '_' . $request->file('imagem_produto')->getClientOriginalName();
-            
+
             // Move a imagem para a pasta public/imagem_produto
             $request->file('imagem_produto')->move(public_path('imagem_produto'), $imagemNome);
         } else {
@@ -460,16 +456,16 @@ class EstabelecimentoController extends Controller
     public function esqueceuSenhaEstabelecimento(Request $request)
     {
         // Corrigido para corresponder ao campo correto
-        $email = $request->input('emailResetSenhaEstab'); 
-    
+        $email = $request->input('emailResetSenhaEstab');
+
         // Buscar o cliente pelo email no banco de dados
         $estabelecimento = Estabelecimento::where('email', $email)->first();
-    
+
         // Verificar se o cliente foi encontrado
         if ($estabelecimento) {
             // Gerar um token para redefinição de senha
             $token = Str::random(60);
-            
+
             // Inserir o token no banco de dados para esse email
             ResetSenha::create([
                 'id_usuario' => $estabelecimento->id_estab,
@@ -478,16 +474,16 @@ class EstabelecimentoController extends Controller
                 'criado_em' => now(),
                 'token' => $token,
             ]);
-    
+
             // Enviar o email de redefinição de senha
             Mail::to($estabelecimento->email)->send(new ResetSenhaEmail($estabelecimento, $token, 'estabelecimento'));
-    
+
             return redirect()->back()->with('status', 'Email de redefinição de senha enviado!');
         } else {
             return redirect()->back()->with('error', 'Email não encontrado');
         }
     }
-    
+
 
     public function resetSenhaEstabelecimento(Request $request)
     {
@@ -497,15 +493,15 @@ class EstabelecimentoController extends Controller
         if (!$email || !$token) {
             return redirect()->route('index')->with('error', 'Acesso inválido.');
         }
-    
+
         $resetRecord = ResetSenha::where('email', $email)->where('token', $token)->first();
-    
+
         if (!$resetRecord) {
             return redirect()->route('index_restaurante')->with('error', 'Link de redefinição de senha inválido ou expirado.');
         }
 
         $estabelecimento = Estabelecimento::where('email', $email)->first();
-    
+
         if (Carbon::parse($resetRecord->criado_em)->addMinutes(1)->isPast()) {
             LogsToken::create([
                 'id_usuario' => $estabelecimento->id_estab,
@@ -516,14 +512,14 @@ class EstabelecimentoController extends Controller
                 'criado_em' => $resetRecord->criado_em,
                 'usado_em' => now(),
             ]);
-    
+
             ResetSenha::where('email', $email)->where('tipo_usuario', 'estabelecimento')->delete();
-    
+
             return redirect()->route('index_restaurante')->with('error', 'O link de redefinição de senha expirou.');
         }
-    
+
         session(['email' => $email, 'token' => $token]);
-    
+
         return view('nova_senhaEstab', compact('token', 'email'));
     }
 
@@ -541,7 +537,7 @@ class EstabelecimentoController extends Controller
 
         // Verifique se o token é válido e se o email existe na tabela resets_senha_clientes
         $resetRecord = ResetSenha::where('email', $email)->first();
-    
+
         if (!$resetRecord) {
             return redirect()->route('index_restaurante')->with('error', 'Link de redefinição de senha inválido ou expirado.');
         }else {
@@ -564,7 +560,7 @@ class EstabelecimentoController extends Controller
             // Atualiza a senha
             $estabelecimento->senha = Hash::make($request->input('new_password'));
             $estabelecimento->save();
-            
+
             return redirect()->route('index_restaurante')->with('success', 'Senha redefinida com sucesso');
         }
     }
@@ -669,24 +665,24 @@ class EstabelecimentoController extends Controller
         $idEstab = auth()->guard('estabelecimento')->id();
         $chatId = $request->input('id_chat');
         $resposta = $request->input('resposta');
-    
+
         // Busca a última mensagem do chat para descobrir o destinatário
         $ultimaMensagem = MensagensEstab::where('id_chat', $chatId)
             ->orderBy('data_envio', 'desc')
             ->first();
-    
+
         // Se não houver mensagens no chat, atribui o próprio admin como destinatário
         if (!$ultimaMensagem) {
             $idDestinatario = 1;  // Caso não exista histórico, o destinatário pode ser o admin ou qualquer outra lógica
         } else {
             // Verifica quem é o destinatário da última mensagem
-            $idDestinatario = ($ultimaMensagem->id_remetente == Auth::id()) 
-                ? $ultimaMensagem->id_destinatario 
+            $idDestinatario = ($ultimaMensagem->id_remetente == Auth::id())
+                ? $ultimaMensagem->id_destinatario
                 : $ultimaMensagem->id_remetente;
 
             $categoria = $ultimaMensagem->categoria;
         }
-    
+
         // Cria uma nova mensagem no banco de dados
         $novaMensagem = new MensagensEstab();
         $novaMensagem->id_chat = $chatId;
@@ -697,7 +693,7 @@ class EstabelecimentoController extends Controller
         $novaMensagem->data_envio = now();  // A data de envio é a hora atual
         $novaMensagem->ativo = 1;
         $novaMensagem->save();
-    
+
         // Redireciona ou retorna uma resposta para o usuário
         return redirect()->back()->with('success', 'Resposta enviada com sucesso!');
     }
@@ -737,7 +733,7 @@ class EstabelecimentoController extends Controller
         return back()->with('error', 'Erro ao fazer upload da foto de perfil.');
     }
 
-    public function exibirGradeHorario() 
+    public function exibirGradeHorario()
     {
         $idEstab = auth()->guard('estabelecimento')->id();
 
@@ -760,7 +756,7 @@ class EstabelecimentoController extends Controller
         return redirect()->back()->with('error', 'Horário não encontrado.');
     }
 
-    public function salvarGrade(Request $request) 
+    public function salvarGrade(Request $request)
     {
         // Valida os dados enviados pelo modal
         $validatedData = $request->validate([
@@ -768,7 +764,7 @@ class EstabelecimentoController extends Controller
             'inicio_expediente' => 'required|string|max:255', //verificar a possibilidade, necessidade de mudar o tipo de dados
             'termino_expediente' => 'required|string|max:255', //verificar a possibilidade, necessidade de mudar o tipo de dados
         ]);
-        
+
         $idEstab = Auth::guard('estabelecimento')->id();
 
         // Verifica se já existe uma grade cadastrada para o mesmo dia da semana
@@ -783,7 +779,7 @@ class EstabelecimentoController extends Controller
 
             return redirect()->back()->with('success', 'Horário atualizado!');
         }
-        
+
         // Cria a grade
         GradeHorario::create([
             'id_estab' => $idEstab,
@@ -795,7 +791,7 @@ class EstabelecimentoController extends Controller
         return redirect()->back()->with('success', 'Grade cadastrada com sucesso!');
     }
 
-    public function alterarSenha() 
+    public function alterarSenha()
     {
         $idRes = Auth::guard('estabelecimento')->id();
 

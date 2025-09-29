@@ -17,3 +17,4 @@ Route::post('usuario/login', [AuthController::class, 'realizarLogin'])->name('lo
 Route::post('cliente/cadastrar', [ClienteController::class, 'realizarCadastro'])->name('cadastro_cliente');
 
 // grupo de rotas dos estabelecimentos
+Route::post('estabelecimento/cadastrar', [EstabelecimentoController::class, 'realizarCadastro'])->name('cadastro_estabelecimento');
