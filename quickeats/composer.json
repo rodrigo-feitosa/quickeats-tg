@@ -11,8 +11,9 @@
     "require": {
         "php": "^8.2",
         "laravel/framework": "^11.44.1",
-        "league/commonmark":"^2.7",
+        "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.9",
+        "league/commonmark": "^2.7",
         "stripe/stripe-php": "^17.2"
     },
     "require-dev": {
