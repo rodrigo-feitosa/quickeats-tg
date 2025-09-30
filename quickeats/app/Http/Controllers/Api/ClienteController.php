@@ -78,4 +78,9 @@ class ClienteController extends Controller
             ], 500);
         }
     }
+
+    public function exibirPaginaInicial()
+    {
+         return response()->json(["Página inicial do cliente exibida com sucesso!"], 200);
+    }
 }

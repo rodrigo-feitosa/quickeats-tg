@@ -61,15 +61,13 @@ class EstabelecimentoController extends Controller
                 ], 500);
             }
 
-
-            // try {
-            //     Mail::to($estabelecimento->email)->send(new ConfirmaEmail($token, $estabelecimento->email, 'estabelecimento'));
-            // } catch (\Exception $e) {
-            //     return response()->json([
-            //         'error' => 'Erro ao enviar e-mail de confirmação.'
-            //     ], 500);
-            // }
-
+            try {
+                Mail::to($estabelecimento->email)->send(new ConfirmaEmail($token, $estabelecimento->email, 'estabelecimento'));
+            } catch (\Exception $e) {
+                return response()->json([
+                    'error' => 'Erro ao enviar e-mail de confirmação.'
+                ], 500);
+            }
 
             return response()->json([
                 'success' => 'Estabelecimento cadastrado com sucesso.'

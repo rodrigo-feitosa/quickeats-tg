@@ -58,6 +58,11 @@ return [
             'driver' => 'session',
             'provider' => 'administradores',
         ],
+
+        'api' => [
+            'driver' => 'sanctum',
+            'provider' => 'clientes',
+        ],
     ],
 
     /*

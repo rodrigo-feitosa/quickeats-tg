@@ -30,10 +30,13 @@ class AuthController extends Controller
         $cliente = $ativoVerificado(Cliente::class, $email);
         if ($cliente && Auth::guard('cliente')->attempt(['email' => $email, 'password' => $senha]))
         {
+            $token = $cliente->createToken('cliente_token')->plainTextToken;
             return response()->json([
                 'success' => true,
                 'message' => 'Login do cliente realizado com sucesso!',
                 'cliente' => $cliente,
+                'token'   => $token,
+                'token_type' => 'Bearer',
             ]);
         }
 
@@ -42,10 +45,13 @@ class AuthController extends Controller
         {
             if ($estabelecimento && Auth::guard('estabelecimento')->attempt(['email' => $email, 'password' => $senha]))
             {
+                $token = $estabelecimento->createToken('estabelecimento_token')->plainTextToken;
                 return response()->json([
                     'success' => true,
                     'message' => 'Login do estabelecimento realizado com sucesso!',
                     'cliente' => $estabelecimento,
+                    'token'   => $token,
+                    'token_type' => 'Bearer',
                 ]);
             }
         }
@@ -76,5 +82,31 @@ class AuthController extends Controller
             'success' => false,
             'message' => 'Email ou senha inválidos.',
         ], 401);
+    }
+
+    public function logout(Request $request)
+    {
+        try {
+            if (!$request->user()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Nenhum usuário autenticado encontrado.',
+                ], 401);
+            }
+
+            // Revoga o token que está sendo usado na requisição
+            $request->user()->currentAccessToken()->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Logout realizado com sucesso!',
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro ao realizar logout: Falha ao revogar o token.',
+                'error_details' => $e->getMessage(),
+            ], 500);
+        }
     }
 }

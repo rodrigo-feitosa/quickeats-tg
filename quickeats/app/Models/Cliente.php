@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable; // Importando Authenticatable para autenticação
 use Illuminate\Support\Facades\Hash;
@@ -9,7 +10,7 @@ use Illuminate\Support\Facades\DB;
 
 class Cliente extends Authenticatable
 {
-    use HasFactory;
+    use HasFactory, HasApiTokens;
 
     // Defina a chave primária, se não for 'id'
     protected $primaryKey = 'id_cliente';
