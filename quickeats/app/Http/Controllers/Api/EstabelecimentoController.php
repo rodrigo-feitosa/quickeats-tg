@@ -83,4 +83,12 @@ class EstabelecimentoController extends Controller
             ], 500);
         }
     }
+
+    public function exibirPaginaInicial()
+    {
+        return response()->json([
+            'success' => true,
+            'message' => 'Página inicial do estabelecimento exibida com sucesso!'
+        ], 200);
+    }
 }

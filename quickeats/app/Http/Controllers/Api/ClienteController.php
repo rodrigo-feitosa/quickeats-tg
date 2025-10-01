@@ -81,6 +81,9 @@ class ClienteController extends Controller
 
     public function exibirPaginaInicial()
     {
-         return response()->json(["Página inicial do cliente exibida com sucesso!"], 200);
+        return response()->json([
+            'success' => true,
+            'message' => 'Página inicial do cliente exibida com sucesso!'
+        ], 200);
     }
 }

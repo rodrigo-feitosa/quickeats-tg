@@ -30,7 +30,7 @@ class AuthController extends Controller
         $cliente = $ativoVerificado(Cliente::class, $email);
         if ($cliente && Auth::guard('cliente')->attempt(['email' => $email, 'password' => $senha]))
         {
-            $token = $cliente->createToken('cliente_token')->plainTextToken;
+            $token = $cliente->createToken('cliente_token', ['cliente'])->plainTextToken;
             return response()->json([
                 'success' => true,
                 'message' => 'Login do cliente realizado com sucesso!',
@@ -45,7 +45,7 @@ class AuthController extends Controller
         {
             if ($estabelecimento && Auth::guard('estabelecimento')->attempt(['email' => $email, 'password' => $senha]))
             {
-                $token = $estabelecimento->createToken('estabelecimento_token')->plainTextToken;
+                $token = $estabelecimento->createToken('estabelecimento_token', ['estabelecimento'])->plainTextToken;
                 return response()->json([
                     'success' => true,
                     'message' => 'Login do estabelecimento realizado com sucesso!',
