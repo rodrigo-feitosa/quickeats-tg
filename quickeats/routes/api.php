@@ -7,7 +7,8 @@ use Illuminate\Support\Facades\Route;
 
 // rota de login comum
 Route::get('/login', function () {
-    return view('welcome');
+    // Chama o método errorResponse
+    return response()->json(['error' => 'Unauthorized'], 401)->header('Content-Type', 'application/json');
 })->name('login');
 
 // grupo de rotas de uso comum
