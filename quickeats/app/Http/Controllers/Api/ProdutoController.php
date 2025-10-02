@@ -34,36 +34,22 @@ class ProdutoController extends Controller
 
     public function listarProdutosDisponiveis()
     {
-        $produtos = DB::select('CALL listar_produtos()');
+        $produtos = Produto::with(['categoria', 'estabelecimento.gradesHorario'])
+            ->where('qtd_estoque', '>', 0)
+            ->whereHas('estabelecimento', function ($query) {
+                $query->where('email_verificado', 1)
+                      ->where('perfil_ativo', 1);
+            })
+            ->get()
+            ->filter(function ($produto) {
+                return $produto->estabelecimento && $produto->estabelecimento->abertoAgora();
+            })
+            ->map->toApiArray()
+            ->values();
 
-        $horaAtual = now()->format('H:i:s');
-        $diaSemana = now()->dayOfWeekIso;
-
-        $produtos = collect($produtos)->map(function ($produto) use ($horaAtual, $diaSemana) {
-            $horario = DB::table('grades_horario')
-                ->where('id_estab', $produto->id_estab)
-                ->where('dia_semana', $diaSemana)
-                ->first();
-
-            $produto->estab_fechado = true;
-
-            if ($horario && $horario->inicio_expediente && $horario->termino_expediente) {
-                if ($horaAtual >= $horario->inicio_expediente && $horaAtual <= $horario->termino_expediente) {
-                    $produto->estab_fechado = false;
-                }
-            }
-
-            return $produto;
-        });
-
-        $produtosDisponiveis = $produtos->filter(function ($produto) {
-            return !$produto->estab_fechado;
-        })->values();
-
-        // Retorna JSON
         return response()->json([
             'success' => true,
-            'produtos' => $produtosDisponiveis
+            'produtos' => $produtos
         ], 200);
     }
 }

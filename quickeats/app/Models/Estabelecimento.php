@@ -70,4 +70,25 @@ class Estabelecimento extends Authenticatable
     {
         return DB::statement('CALL atualizar_estabelecimento(?, ?, ?)', [$id_res, $telefone, $email]);
     }
+
+    public function gradesHorario()
+    {
+        return $this->hasMany(GradeHorario::class, 'id_estab', 'id_estab');
+    }
+
+    public function abertoAgora()
+    {
+        $horaAtual = now()->format('H:i:s');
+        $diaSemana = now()->dayOfWeekIso;
+
+        $horario = $this->gradesHorario()
+            ->where('dia_semana', $diaSemana)
+            ->first();
+
+        if (!$horario || !$horario->inicio_expediente || !$horario->termino_expediente) {
+            return false;
+        }
+
+        return $horaAtual >= $horario->inicio_expediente && $horaAtual <= $horario->termino_expediente;
+    }
 }

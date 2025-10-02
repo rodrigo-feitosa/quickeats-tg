@@ -4,8 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\DB;
 
 class Produto extends Model
 {
@@ -33,7 +31,28 @@ class Produto extends Model
     public $timestamps = false;
 
     public function estabelecimento()
-{
-    return $this->belongsTo(Estabelecimento::class, 'id_estab');
-}
+    {
+        return $this->belongsTo(Estabelecimento::class, 'id_estab');
+    }
+
+    public function categoria()
+    {
+        return $this->belongsTo(CategoriaProduto::class, 'id_categoria');
+    }
+
+    public function toApiArray()
+    {
+        return [
+            'id_produto'   => $this->id_produto,
+            'nome_produto' => $this->nome,
+            'descricao'    => $this->descricao,
+            'valor'        => $this->valor,
+            'id_categoria' => $this->id_categoria,
+            'categoria'    => $this->categoria->descricao ?? null,
+            'id_estab'     => $this->id_estab,
+            'qtd_estoque'  => $this->qtd_estoque,
+            'estab'        => $this->estabelecimento->nome_fantasia ?? null,
+            'imagem'       => $this->imagem_produto,
+        ];
+    }
 }
