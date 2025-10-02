@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Models\Produto;
 use App\Http\Controllers\Controller;
+use App\Models\ProdutoFavorito;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -50,6 +51,16 @@ class ProdutoController extends Controller
         return response()->json([
             'success' => true,
             'produtos' => $produtos
+        ], 200);
+    }
+
+    public function listarProdutosPopulares()
+    {
+        $prodPopulares = DB::select("SELECT * FROM produtos_populares");
+
+        return response()->json([
+            'success' => true,
+            'produtos' => $prodPopulares,
         ], 200);
     }
 }

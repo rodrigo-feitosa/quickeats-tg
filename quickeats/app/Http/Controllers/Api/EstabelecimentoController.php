@@ -11,6 +11,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Mail;
 use App\Models\ConfirmacaoEmail;
 use App\Mail\ConfirmaEmail;
+use Illuminate\Support\Facades\DB;
 
 class EstabelecimentoController extends Controller
 {
@@ -84,11 +85,13 @@ class EstabelecimentoController extends Controller
         }
     }
 
-    public function exibirPaginaInicial()
+    public function listarEstabPopulares()
     {
+        $estabPopulares = DB::select("SELECT * FROM estabelecimentos_populares");
+
         return response()->json([
             'success' => true,
-            'message' => 'Página inicial do estabelecimento exibida com sucesso!'
+            'estabelecimentos' => $estabPopulares
         ], 200);
     }
 }

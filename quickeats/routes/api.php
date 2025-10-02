@@ -24,7 +24,8 @@ Route::middleware('auth:sanctum', 'ability:cliente,estabelecimento')->group(func
 Route::post('cliente/cadastrar', [ClienteController::class, 'realizarCadastro'])->name('cadastro_cliente');
 // rotas protegidas com token Bearer
 Route::middleware('auth:sanctum', 'ability:cliente')->group(function () {
-    Route::get('/home-cliente', [ClienteController::class, 'exibirPaginaInicial'])->name('home_cliente');
+    Route::get('/lista-produtos-populares', [ProdutoController::class, 'listarProdutosPopulares'])->name('listar_produtos_populares');
+    Route::get('/lista-estab-populares', [EstabelecimentoController::class, 'listarEstabPopulares'])->name('listar_estab_populares');
     Route::get('/lista-produtos-disponiveis', [ProdutoController::class, 'listarProdutosDisponiveis'])->name('listar_produtos_disponiveis');
 });
 
@@ -32,5 +33,4 @@ Route::middleware('auth:sanctum', 'ability:cliente')->group(function () {
 Route::post('estabelecimento/cadastrar', [EstabelecimentoController::class, 'realizarCadastro'])->name('cadastro_estabelecimento');
 // rotas protegidas com token Bearer
 Route::middleware('auth:sanctum', 'ability:estabelecimento')->group(function () {
-    Route::get('/home-estabelecimento', [EstabelecimentoController::class, 'exibirPaginaInicial'])->name('home_estab');
 });
