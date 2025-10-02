@@ -32,12 +32,12 @@ class Produto extends Model
 
     public function estabelecimento()
     {
-        return $this->belongsTo(Estabelecimento::class, 'id_estab');
+        return $this->belongsTo(Estabelecimento::class, 'id_estab', 'id_estab');
     }
 
     public function categoria()
     {
-        return $this->belongsTo(CategoriaProduto::class, 'id_categoria');
+        return $this->belongsTo(CategoriaProduto::class, 'id_categoria', 'id_categoria');
     }
 
     public function toApiArray()

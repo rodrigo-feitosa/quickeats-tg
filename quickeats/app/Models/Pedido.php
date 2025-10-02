@@ -48,4 +48,7 @@ class Pedido extends Model
         }
     }
 
+    public function statusPedido() {
+        return $this->hasOne(StatusPedido::class, 'id_status', 'status_entrega');
+    }
 }
