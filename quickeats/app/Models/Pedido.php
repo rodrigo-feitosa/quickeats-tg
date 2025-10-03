@@ -49,6 +49,26 @@ class Pedido extends Model
     }
 
     public function statusPedido() {
-        return $this->hasOne(StatusPedido::class, 'id_status', 'status_entrega');
+        return $this->belongsTo(StatusPedido::class, 'status_entrega', 'id_status');
+    }
+
+    public function formasPagamento() {
+        return $this->belongsTo(FormaPagamento::class, 'forma_pagamento', 'id_formapag');
+    }
+
+    public function endereco() {
+        return $this->belongsTo(Endereco::class, 'endereco', 'id_endereco');
+    }
+
+    public function cliente() {
+        return $this->belongsTo(Cliente::class, 'id_cliente', 'id_cliente');
+    }
+
+    public function itensPedido() {
+        return $this->belongsTo(ItensPedido::class, 'id_pedido', 'id_pedido');
+    }
+
+    public function avaliacao() {
+        return $this->belongsTo(Avaliacao::class, 'id_pedido', 'id_pedido');
     }
 }

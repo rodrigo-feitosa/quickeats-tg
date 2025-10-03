@@ -24,7 +24,7 @@ class Endereco extends Model
         'bairro',
         'cidade',
         'estado',
-        'cep',
+        'cep'
     ];
 
     // Desativa os timestamps automáticos
@@ -33,13 +33,23 @@ class Endereco extends Model
     public static function cadastrar($id_cliente, $logradouro, $numero, $bairro, $cidade, $estado, $cep)
     {
         return DB::select('CALL cadastrar_endereco(?, ?, ?, ?, ?, ?, ?)', [
-            $id_cliente, 
-            $logradouro, 
-            $numero, 
-            $bairro, 
-            $cidade, 
-            $estado, 
+            $id_cliente,
+            $logradouro,
+            $numero,
+            $bairro,
+            $cidade,
+            $estado,
             $cep
         ]);
+    }
+
+    public function enderecoCliente()
+    {
+        return $this->hasMany(enderecoCliente::class, 'id_endereco', 'id_endereco');
+    }
+
+    public function pedido()
+    {
+        return $this->hasMany(Pedido::class, 'id_endereco', 'id_endereco');
     }
 }

@@ -32,7 +32,7 @@ class Estabelecimento extends Authenticatable
         'senha',
         'email_verificado',
         'perfil_ativo',
-        'imagem_perfil',
+        'imagem_perfil'
     ];
 
     public $timestamps = false;
@@ -71,11 +71,6 @@ class Estabelecimento extends Authenticatable
         return DB::statement('CALL atualizar_estabelecimento(?, ?, ?)', [$id_res, $telefone, $email]);
     }
 
-    public function gradesHorario()
-    {
-        return $this->hasMany(GradeHorario::class, 'id_estab', 'id_estab');
-    }
-
     public function abertoAgora()
     {
         $horaAtual = now()->format('H:i:s');
@@ -90,5 +85,25 @@ class Estabelecimento extends Authenticatable
         }
 
         return $horaAtual >= $horario->inicio_expediente && $horaAtual <= $horario->termino_expediente;
+    }
+
+    public function gradesHorario()
+    {
+        return $this->hasMany(GradeHorario::class, 'id_estab', 'id_estab');
+    }
+
+    public function historicoEstab()
+    {
+        return $this->hasMany(HistoricoEstab::class, 'id_estab', 'id_estab');
+    }
+
+    public function planosEstab()
+    {
+        return $this->hasMany(PlanoEstab::class, 'id_estab', 'id_estab');
+    }
+
+    public function produto()
+    {
+        return $this->hasMany(Produto::class, 'id_estab', 'id_estab');
     }
 }

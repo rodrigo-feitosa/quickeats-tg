@@ -21,7 +21,7 @@ class Avaliacao extends Model
     protected $fillable = [
         'id_avaliacao',
         'id_pedido',
-        'nota',
+        'nota'
     ];
 
     // Desativa os timestamps automáticos
@@ -34,5 +34,10 @@ class Avaliacao extends Model
             $pedido,
             $nota,
         ]);
+    }
+
+    public function pedido()
+    {
+        return $this->belongsTo(Pedido::class, 'id_pedido', 'id_pedido');
     }
 }

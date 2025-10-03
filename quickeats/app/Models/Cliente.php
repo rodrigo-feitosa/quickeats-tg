@@ -64,4 +64,24 @@ class Cliente extends Authenticatable
     {
         return DB::statement('CALL atualizar_cliente(?, ?, ?)', [$id_cliente, $telefone, $email]);
     }
+
+    public function enderecoCliente()
+    {
+        return $this->hasMany(EnderecoCliente::class, 'id_cliente', 'id_cliente');
+    }
+
+    public function historicoCliente()
+    {
+        return $this->hasMany(HistoricoCliente::class, 'id_cliente', 'id_cliente');
+    }
+
+    public function pedido()
+    {
+        return $this->hasMany(Pedido::class, 'id_cliente', 'id_cliente');
+    }
+
+    public function produtoFavorito()
+    {
+        return $this->hasMany(ProdutoFavorito::class, 'id_cliente', 'id_cliente');
+    }
 }

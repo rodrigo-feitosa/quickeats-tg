@@ -21,4 +21,14 @@ class ProdutoFavorito extends Model
 
     // Desativa os timestamps automáticos
     public $timestamps = false;
+
+    public function produto()
+    {
+        return $this->belongsTo(Produto::class, 'id_produto', 'id_produto');
+    }
+
+    public function cliente()
+    {
+        return $this->belongsTo(Cliente::class, 'id_cliente', 'id_cliente');
+    }
 }
