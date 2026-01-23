@@ -5,6 +5,10 @@ use App\Http\Controllers\Api\EstabelecimentoController;
 use App\Http\Controllers\Api\ProdutoController;
 use Illuminate\Support\Facades\Route;
 
+
+Route::get('/lista-produtos-populares', [ProdutoController::class, 'listarProdutosPopulares'])->name('listar_produtos_populares');
+Route::get('/lista-estab-populares', [EstabelecimentoController::class, 'listarEstabPopulares'])->name('listar_estab_populares');
+
 // rota de login comum
 Route::get('/login', function () {
     // Chama o método errorResponse
@@ -24,8 +28,6 @@ Route::middleware('auth:sanctum', 'ability:cliente,estabelecimento')->group(func
 Route::post('cliente/cadastrar', [ClienteController::class, 'realizarCadastro'])->name('cadastro_cliente');
 // rotas protegidas com token Bearer
 Route::middleware('auth:sanctum', 'ability:cliente')->group(function () {
-    Route::get('/lista-produtos-populares', [ProdutoController::class, 'listarProdutosPopulares'])->name('listar_produtos_populares');
-    Route::get('/lista-estab-populares', [EstabelecimentoController::class, 'listarEstabPopulares'])->name('listar_estab_populares');
     Route::get('/lista-produtos-disponiveis', [ProdutoController::class, 'listarProdutosDisponiveis'])->name('listar_produtos_disponiveis');
 });
 
