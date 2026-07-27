@@ -1,6 +1,6 @@
 <?php
 use App\Http\Controllers\Api\AuthController;
-use App\Http\Controllers\Api\ClienteController;
+use App\Http\Controllers\Api\CustomerController;
 use App\Http\Controllers\Api\EstabelecimentoController;
 use App\Http\Controllers\Api\ProdutoController;
 use Illuminate\Support\Facades\Route;
@@ -25,7 +25,7 @@ Route::middleware('auth:sanctum', 'ability:cliente,estabelecimento')->group(func
 });
 
 // grupo de rotas dos clientes
-Route::post('cliente/cadastrar', [ClienteController::class, 'realizarCadastro'])->name('cadastro_cliente');
+Route::post('customer/register', [CustomerController::class, 'store']);
 // rotas protegidas com token Bearer
 Route::middleware('auth:sanctum', 'ability:cliente')->group(function () {
     Route::get('/lista-produtos-disponiveis', [ProdutoController::class, 'listarProdutosDisponiveis'])->name('listar_produtos_disponiveis');
