@@ -8,35 +8,25 @@ use Illuminate\Foundation\Auth\User as Authenticatable; // Importando Authentica
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 
-class Cliente extends Authenticatable
+class Customer extends Authenticatable
 {
     use HasFactory, HasApiTokens;
 
-    // Defina a chave primária, se não for 'id'
-    protected $primaryKey = 'id_cliente';
-
     // Define a tabela associada
-    protected $table = 'clientes';
+    protected $table = 'customers';
 
     // Define os campos que podem ser preenchidos em massa
     protected $fillable = [
-        'nome',
+        'name',
         'cpf',
-        'data_nasc',
-        'telefone',
-        'email',
-        'senha',
-        'email_verificado',
-        'perfil_ativo'
+        'date_of_birth',
+        'phone',
+        'user_id',
     ];
 
     // Desativa os timestamps automáticos
     public $timestamps = false;
-
-    // Ocultar a senha ao recuperar os dados
-    protected $hidden = [
-        'senha',
-    ];
+    
 
     // Adiciona a função getAuthPassword para autenticação
     public function getAuthPassword()
@@ -48,14 +38,12 @@ class Cliente extends Authenticatable
     public static function cadastrarCliente($data)
     {
         return self::create([
-            'nome' => $data['nomeSignup'],
+            'name' => $data['nomeSignup'],
             'cpf' => $data['cpfSignup'],
-            'data_nasc' => $data['dataNascSignup'],
-            'telefone' => $data['telefoneSignup'],
+            'date_of_birth' => $data['dataNascSignup'],
+            'phone' => $data['telefoneSignup'],
             'email' => $data['emailSignup'],
-            'senha' => Hash::make($data['senhaSignup']),
-            'email_verificado' => 0,
-            'perfil_ativo' => 1,
+            'password' => Hash::make($data['senhaSignup'])
         ]);
     }
 
