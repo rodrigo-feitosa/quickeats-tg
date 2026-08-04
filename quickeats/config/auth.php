@@ -40,28 +40,9 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
-
-        // Guard para clientes
-        'cliente' => [
-            'driver' => 'session',
-            'provider' => 'clientes',
-        ],
-
-        // Guard para estabelecimentos
-        'estabelecimento' => [
-            'driver' => 'session',
-            'provider' => 'estabelecimentos',
-        ],
-
-        // Guard para os administradores
-        'administrador' => [
-            'driver' => 'session',
-            'provider' => 'administradores',
-        ],
-
         'api' => [
             'driver' => 'sanctum',
-            'provider' => 'clientes',
+            'provider' => 'users',
         ],
     ],
 
@@ -86,18 +67,6 @@ return [
         'users' => [
             'driver' => 'eloquent',
             'model' => env('AUTH_MODEL', App\Models\User::class),
-        ],
-
-        // Provider para clientes usando o model Cliente
-        'clientes' => [
-            'driver' => 'eloquent',
-            'model' => App\Models\Cliente::class,
-        ],
-
-        // Provider para estabelecimentos usando o model Estabelecimento
-        'estabelecimentos' => [
-            'driver' => 'eloquent',
-            'model' => App\Models\Estabelecimento::class,
         ],
 
         // Provider para administradores usando o model Administrador

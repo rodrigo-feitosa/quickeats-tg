@@ -2,86 +2,43 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Models\Cliente;
-use App\Models\Estabelecimento;
+use App\Models\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use App\Http\Requests\LoginRequest;
 
 class AuthController extends Controller
 {
-    public function realizarLogin(Request $request)
+    public function login(LoginRequest $request)
     {
-        $validatedData = $request->validate([
-            'emailLogin' => 'required|string|email|max:255',
-            'senhaLogin' => 'required|string|min:8',
-        ]);
+        $user = User::where([
+            ['email', '=', $request->email],
+            ['active', '=', true]
+        ])->first();
 
-        $email = $validatedData['emailLogin'];
-        $senha = $validatedData['senhaLogin'];
-
-        $ativoVerificado = function ($model, $email) {
-            return $model::where('email', $email)
-            ->where('email_verificado', 1)
-            ->where('perfil_ativo', 1)
-            ->first();
-        };
-
-        $cliente = $ativoVerificado(Cliente::class, $email);
-        if ($cliente && Auth::guard('cliente')->attempt(['email' => $email, 'password' => $senha]))
-        {
-            $token = $cliente->createToken('cliente_token', ['cliente'])->plainTextToken;
-            return response()->json([
-                'success' => true,
-                'message' => 'Login do cliente realizado com sucesso!',
-                'cliente' => $cliente,
-                'token'   => $token,
-                'token_type' => 'Bearer',
-            ]);
-        }
-
-        $estabelecimento = $ativoVerificado(Estabelecimento::class, $email);
-        if (Auth::guard('estabelecimento')->attempt(['email' => $validatedData['emailLogin'], 'password' => $validatedData['senhaLogin']]))
-        {
-            if ($estabelecimento && Auth::guard('estabelecimento')->attempt(['email' => $email, 'password' => $senha]))
-            {
-                $token = $estabelecimento->createToken('estabelecimento_token', ['estabelecimento'])->plainTextToken;
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Login do estabelecimento realizado com sucesso!',
-                    'cliente' => $estabelecimento,
-                    'token'   => $token,
-                    'token_type' => 'Bearer',
-                ]);
-            }
-        }
-
-        // Verifica motivo do erro
-        if (!$cliente && !$estabelecimento) {
+        // 2. Se o usuário não existir ou a senha estiver errada
+        if (!$user || !Hash::check($request->password, $user->password)) {
             return response()->json([
                 'success' => false,
-                'message' => 'Email não encontrado ou não verificado.',
-            ], 403);
+                'message' => 'Credenciais inválidas ou conta não verificada.',
+            ], 401);
         }
 
-        if (($cliente && !$cliente->email_verificado) || ($estabelecimento && !$estabelecimento->email_verificado)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Email não verificado!',
-            ], 403);
-        }
+        /// 3. Define as habilidades (abilities) de acordo com o tipo de usuário
+        $abilities = [$user->user_type];
+        $tokenName = $user->user_type . '_token';
 
-        if (($cliente && !$cliente->perfil_ativo) || ($estabelecimento && !$estabelecimento->perfil_ativo)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Seu perfil está desativado.',
-            ], 403);
-        }
+        // 4. Cria o token via Sanctum
+        $token = $user->createToken($tokenName, $abilities)->plainTextToken;
 
         return response()->json([
-            'success' => false,
-            'message' => 'Email ou senha inválidos.',
-        ], 401);
+            'success'    => true,
+            'message'    => "Login de {$user->user_type} realizado com sucesso!",
+            'user'       => $user,
+            'token'      => $token,
+            'token_type' => 'Bearer',
+        ]);
     }
 
     public function logout(Request $request)

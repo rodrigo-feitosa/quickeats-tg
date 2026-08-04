@@ -16,7 +16,7 @@ Route::get('/login', function () {
 })->name('login');
 
 // grupo de rotas de uso comum
-Route::post('usuario/login', [AuthController::class, 'realizarLogin'])->name('login_usuario');
+Route::post('user/login', [AuthController::class, 'login']);
 // rotas protegidas com token Bearer
 Route::middleware('auth:sanctum', 'ability:cliente,estabelecimento')->group(function () {
     Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
@@ -28,7 +28,7 @@ Route::middleware('auth:sanctum', 'ability:cliente,estabelecimento')->group(func
 Route::post('customer/register', [CustomerController::class, 'store']);
 // rotas protegidas com token Bearer
 Route::middleware('auth:sanctum', 'ability:cliente')->group(function () {
-    Route::get('/lista-produtos-disponiveis', [ProdutoController::class, 'listarProdutosDisponiveis'])->name('listar_produtos_disponiveis');
+    Route::get('/lista-produtos-disponiveis', [ProdutoController::class, 'showAvaiableProducts']);
 });
 
 // grupo de rotas dos estabelecimentos
