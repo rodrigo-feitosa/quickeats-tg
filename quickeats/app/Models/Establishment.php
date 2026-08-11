@@ -9,37 +9,32 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 
-class Estabelecimento extends Authenticatable
+class Establishment extends Authenticatable
 {
     use HasFactory, HasApiTokens;
 
-    protected $primaryKey = 'id_estab';
-    protected $table = 'estabelecimentos';
+    protected $table = 'establishments';
 
     protected $fillable = [
-        'nome_fantasia',
+        'company_name',
+        'trade_name',
         'cnpj',
-        'telefone',
-        'logradouro',
-        'numero',
-        'bairro',
-        'cidade',
-        'estado',
-        'cep',
-        'inicio_expediente',
-        'termino_expediente',
-        'email',
-        'senha',
-        'email_verificado',
-        'perfil_ativo',
-        'imagem_perfil'
+        'phone',
+        'account_holder_cpf',
+        'account_holder_rg',
+        'cnae',
+        'street',
+        'number',
+        'complement',
+        'neighborhood',
+        'city',
+        'state',
+        'zip_code',
+        'user_id',
+        'profile_picture'
     ];
 
     public $timestamps = false;
-
-    protected $hidden = [
-        'senha',
-    ];
 
     public function getAuthPassword()
     {
