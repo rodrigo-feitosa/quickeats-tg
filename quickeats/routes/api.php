@@ -1,13 +1,9 @@
 <?php
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CustomerController;
-use App\Http\Controllers\Api\EstabelecimentoController;
-use App\Http\Controllers\Api\ProdutoController;
+use App\Http\Controllers\Api\EstablishmentController;
+use App\Http\Controllers\Api\ProductController;
 use Illuminate\Support\Facades\Route;
-
-
-Route::get('/lista-produtos-populares', [ProdutoController::class, 'listarProdutosPopulares'])->name('listar_produtos_populares');
-Route::get('/lista-estab-populares', [EstabelecimentoController::class, 'listarEstabPopulares'])->name('listar_estab_populares');
 
 // rota de login comum
 Route::get('/login', function () {
@@ -17,18 +13,22 @@ Route::get('/login', function () {
 
 // grupo de rotas de uso comum
 Route::post('user/login', [AuthController::class, 'login']);
+
+// grupo de rotas dos estabelecimentos
+Route::post('establishment/register', [EstablishmentController::class, 'store']);
 // rotas protegidas com token Bearer
 Route::middleware('auth:sanctum', 'ability:cliente,estabelecimento')->group(function () {
     Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
-    Route::get('/lista-produtos-por-estab', [ProdutoController::class, 'listarProdutosPorEstab'])->name('listar_produtos_por_estab');
-    Route::get('/lista-produtos-por-cat', [ProdutoController::class, 'listarProdutosPorCat'])->name('listar_produtos_por_cat');
 });
 
 // grupo de rotas dos clientes
 Route::post('customer/register', [CustomerController::class, 'store']);
 // rotas protegidas com token Bearer
 Route::middleware('auth:sanctum', 'ability:cliente')->group(function () {
-    Route::get('/lista-produtos-disponiveis', [ProdutoController::class, 'showAvaiableProducts']);
+    Route::prefix('products')->group(function () {
+        Route::get('/', [ProductController::class, 'index']);
+        Route::get('/{id}', [ProductController::class, 'show']);
+    });
 });
 
 // grupo de rotas dos estabelecimentos
