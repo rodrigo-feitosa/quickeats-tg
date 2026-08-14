@@ -32,7 +32,12 @@ Route::middleware('auth:sanctum', 'ability:cliente')->group(function () {
 });
 
 // grupo de rotas dos estabelecimentos
-Route::post('estabelecimento/cadastrar', [EstabelecimentoController::class, 'realizarCadastro'])->name('cadastro_estabelecimento');
+Route::post('estabelecimento/cadastrar', [EstablishmentController::class, 'realizarCadastro'])->name('cadastro_estabelecimento');
 // rotas protegidas com token Bearer
 Route::middleware('auth:sanctum', 'ability:estabelecimento')->group(function () {
+    Route::prefix('products')->group(function () {
+        Route::post('/', [ProductController::class, 'store']);
+        Route::put('/{id}', [ProductController::class, 'update']);
+        Route::delete('/{id}', [ProductController::class, 'destroy']);
+    });
 });
