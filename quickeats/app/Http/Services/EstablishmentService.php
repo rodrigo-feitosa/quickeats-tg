@@ -19,7 +19,8 @@ class EstablishmentService
     {
         return DB::transaction(function () use ($data) {
 
-            $user = $this->authService->createUser($data);
+            $userType = 'estabelecimento';
+            $user = $this->authService->createUser($userType, $data);
             
             Establishment::create([
                 'company_name' => $data['company_name'],

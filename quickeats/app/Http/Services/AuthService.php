@@ -6,12 +6,15 @@ use App\Models\User;
 
 class AuthService
 {
-    public function createUser(array $data)
+    public function createUser(string $userType, array $data)
     {
-        return User::create([
+        $user = User::create([
             'name' => $data['name'] ?? $data['company_name'],
             'email' => $data['email'],
             'password' => bcrypt($data['password']),
+            'user_type' => $userType,
         ]);
+        
+        return $user;
     }
 }
